@@ -4,11 +4,12 @@ const fs = require('fs');
 const mysql = require('mysql2/promise');
 // TODO: Create an array of questions for user input
 
+let connection;
+
 initialize()
 
 async function initialize(){
-    connection = await mysql.createConnection({host:'localhost', user: 'root', database: ''})
-
+     connection = await mysql.createConnection({host:'localhost', user: 'root', password:"rout", database: 'db_EmployeeInfo'})
 }
 
 
@@ -34,25 +35,25 @@ inquirer
     .then((response) => {
         console.log(response)
 
-        if (response = "View All Employees") {
+        if (response.managerChoices === "View All Employees") {
             viewAllEmployees();
         }
-        else if (response = "Add Employees") {
+        else if (response.managerChoices === "Add Employees") {
             addEmployees()
         }
-        else if (response = "Update Employee Role") {
+        else if (response.managerChoices === "Update Employee Role") {
             updateEmployeeRole()
         }
-        else if (response = "View All Roles") {
+        else if (response.managerChoices === "View All Roles") {
             viewAllRoles()
         }
-        else if (response = "Add Role") {
+        else if (response.managerChoices === "Add Role") {
             addRole()
         }
-        else if (response = "View All Departments") {
+        else if (response.managerChoices === "View All Departments") {
             viewAllDepartments()
         }
-        else if (response = "Add Department") {
+        else if (response.managerChoices === "Add Department") {
             addDepartment()
         }
         else {
@@ -60,11 +61,18 @@ inquirer
         }
     })
 
-    async function viewAllEmployees() {
-   const [rows] = await connection.execute(`SELECT * FROM employees`);
-   console.table(rows);
+    // const [rows] = await connection.execute(`SELECT * FROM employees where firstname = ?`,[responseObject.first_name] );
+    // console.table(rows);
 
-// console.table(employee)
+
+    async function viewAllEmployees() {
+        try {
+        const [rows] = await connection.execute(`SELECT * FROM employee`);
+   console.table(rows);
+        } catch (error) {
+            console.log(error)
+        }
+   
 }
 function addEmployees() {
 
@@ -72,14 +80,24 @@ function addEmployees() {
 function updateEmployeeRole() {
 
 }
-function viewAllRoles() {
-// console.table(roles)
+async function viewAllRoles() {
+    try {
+        const [rows] = await connection.execute(`SELECT * FROM role`);
+   console.table(rows);
+        } catch (error) {
+            console.log(error)
+        }
 }
 function addRole() {
 
 }
-function viewAllDepartments() {
-
+async function viewAllDepartments() {
+    try {
+        const [rows] = await connection.execute(`SELECT * FROM department`);
+   console.table(rows);
+        } catch (error) {
+            console.log(error)
+        }
 }
 function addDepartment() {
 
