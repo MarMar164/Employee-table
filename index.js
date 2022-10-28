@@ -236,8 +236,71 @@ async function viewAllRoles() {
     }
 }
 function addRole() {
+    let query =
+        `SELECT department.id, department.name, role.salary AS budget
+    FROM employee
+    JOIN role
+    ON employee.role_id = role.id
+    JOIN department
+    ON department.id = role.department_id
+    GROUP BY department.id, department.name`
 
+    connection.query(query, function (error, res) {
+        if (error) throw error;
+
+        const Addition = res.map(({ id, name }) => ({
+            value: id, name: `${id} ${name}`
+        }));
+
+        console.table(res);
+        console.log("lol its an array")
+
+        promptAddRole(Addition);
+    });
 }
+
+function promptAddRole(Addition) {
+
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "roleTitle",
+                message: "What's the Role title?"
+            },
+            {
+                type: "input",
+                name: "roleSalary",
+                message: "What's the Role Salary"
+            },
+            {
+                type: "list",
+                name: "departmentId",
+                message: "What's the Department?",
+                choices: Addition
+            },
+        ])
+        .then(function (ans) {
+
+            let query = `INSERT INTO role set ?`
+
+            connection.query(query, {
+                title: ans.title,
+                salary: ans.salary,
+                department_id: ans.department_id
+            },
+                function (error, res) {
+                    if (error) throw error;
+
+
+                    console.table(res)
+                    console.log("Insert DONE")
+
+                    start();
+                })
+        })
+}
+
 async function viewAllDepartments() {
     try {
         const [rows] = await connection.execute(`SELECT * FROM department`);
@@ -246,10 +309,10 @@ async function viewAllDepartments() {
         console.log(error)
     }
 }
+
 function addDepartment() {
 
-}
-function Quit() {
+
 
 }
 
