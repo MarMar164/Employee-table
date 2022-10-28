@@ -4,12 +4,10 @@ const fs = require('fs');
 const mysql = require('mysql2/promise');
 // TODO: Create an array of questions for user input
 
-let connection;
-
-initialize()
+ initialize()
 
 async function initialize() {
-    connection = await mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
+    connection =  mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
 }
 
 start();
@@ -84,7 +82,7 @@ function addEmployees() {
     console.log("employee adding")
 
     let query = 
-    "SELECT role.id, role.title, role.salary FROM role "
+   'SELECT role.id, role.title, role.salary FROM role'
 
     connection.query(query, function (error, res) {
         if (error) throw error;
@@ -139,7 +137,7 @@ function promptInsert(roleResults) {
                     start();
                 })
         })
-}
+ }
 
 
 function updateEmployeeRole() {
