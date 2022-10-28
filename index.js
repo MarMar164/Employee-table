@@ -4,10 +4,10 @@ const fs = require('fs');
 const mysql = require('mysql2');
 // TODO: Create an array of questions for user input
 
- initialize()
+initialize()
 
 async function initialize() {
-    connection =  mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
+    connection = mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
 }
 
 start();
@@ -60,7 +60,7 @@ function start() {
                 connection.end();
             }
         })
-    
+
 }
 
 
@@ -81,8 +81,8 @@ async function viewAllEmployees() {
 function addEmployees() {
     console.log("employee adding")
 
-    let query = 
-   'SELECT role.id, role.title, role.salary FROM role'
+    let query =
+        'SELECT role.id, role.title, role.salary FROM role'
 
     connection.query(query, function (error, res) {
         if (error) throw error;
@@ -137,12 +137,96 @@ function promptInsert(roleResults) {
                     start();
                 })
         })
- }
+}
 
 
 function updateEmployeeRole() {
-
+    employeeUpdater();
 }
+function employeeUpdater() {
+    console.log("updates baby updates")
+
+    let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, CONCAT(manager.first_name,'',manager.last_name) FROM employee
+JOIN role
+ON employee.role_id = role_id
+JOIN department
+ON department.id = role.department_id
+JOIN employee manager
+ON manager.id = employee.manager_id`
+
+    connection.query(query, function (error, res) {
+        if (error) throw (error);
+
+        const employeeChoices = res.map(({ id, first_name, last_name }) => ({
+            value: id, name: `${first_name}``${last_name}`
+        }));
+
+        console.table(res)
+        console.log("updated!\n")
+
+        roleArray(employeeChoices);
+    });
+}
+
+function roleArray(employeeChoices) {
+
+    let query = `SELECT role.id, role.title, role.salary
+FROM role`
+
+    let roleChoice;
+
+    connection.query(query, function (error, res) {
+        if (error) throw error;
+
+        roleChoice = res.map(({ id, title, salary }) => ({
+            value: id, title: `${title}`, salary: `${salary}`
+        }));
+
+        console.table(res);
+        console.log("roleArray!\n")
+
+        promptRoleEmployee(employeeChoices, roleChoice)
+    })
+}
+
+function promptRoleEmployee(employeeChoices, roleChoice) {
+
+    inquirer
+        .prompt([
+            {
+                type: "list",
+                name: "employeeId",
+                message: "Which employee do you want to set with the role?",
+                choices: employeeChoices
+            },
+            {
+                type: "list",
+                name: "roleId",
+                message: "Which role do you want to update?",
+                choices: roleChoice
+            },
+        ])
+        .then(function (information) {
+
+            let query = `UPDATE employee SET role_id = ? WHERE id = ? `
+
+            connection.query(query,
+                [
+                    information.roleId,
+                    information.employeeId
+                ],
+                function (error, res) {
+                    if (error) throw error;
+
+                    console.table(res);
+                    console.log("you updated")
+
+                    start();
+                })
+        })
+}
+
+
 async function viewAllRoles() {
     try {
         const [rows] = await connection.execute(`SELECT * FROM role`);
