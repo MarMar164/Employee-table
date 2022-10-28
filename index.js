@@ -4,10 +4,10 @@ const fs = require('fs');
 const mysql = require('mysql2');
 // TODO: Create an array of questions for user input
 
+let connection;
 initialize()
-
-function initialize() {
-    connection = mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
+async function initialize() {
+     connection= await mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
 }
 
 start();
@@ -239,13 +239,23 @@ function promptRoleEmployee(employeeChoices, roleChoice) {
 
 
 async function viewAllRoles() {
-    try {
-        const [rows] =  connection.execute(`SELECT * FROM role`);
-        console.table(rows);
-    } catch (error) {
-        console.log(error)
-    }
+   let query =`SELECT role.id, role.title, role.salary
+   FROM role`
+
+let roleChoices;
+
+connection.query(query, function(error, res){
+if (error) throw error;
+
+roleChoices = res.map(({id, title, salary}) => ({
+value: id, title: `${title}`, salary:`${salary}`
+}));
+
+console.table(res);
+
+});
 }
+
 
 function addRole() {
     let query =
@@ -313,15 +323,29 @@ function promptAddRole(Addition) {
         })
 }
 
-async function viewAllDepartments() {
-    let connection;
+function viewAllDepartments() {
+   
+let query = `SELECT department.id, department.name, role.salary AS budget
+FROM employee
+LEFT JOIN role
+    ON employee.role_id = role.id
+LEFT JOIN department
+ON department.id = role.department_id
+GROUP BY department.id, department.name
+`
 
-    try {
-        const [rows] = await connection.execute(`SELECT * FROM department`);
-        console.table(rows);
-    } catch (error) {
-        console.log(error)
-    }
+connection.query(query, function (error, res){
+if (error) throw error;
+
+const departmentOptions = res.map(data => ({
+value: data.id, name: data.name
+}));
+console.table(res)
+console.log("departments bro")
+
+start()
+})
+
 }
 
 function addDepartment() {
