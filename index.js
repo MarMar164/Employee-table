@@ -1,7 +1,7 @@
 // TODO: Include packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
 // TODO: Create an array of questions for user input
 
  initialize()
@@ -133,7 +133,7 @@ function promptInsert(roleResults) {
                     if (error) throw error;
 
                     console.table(res)
-                    console.log(res.insertedRows + "you did it!\n")
+                    console.log("you did it!\n")
                     start();
                 })
         })
