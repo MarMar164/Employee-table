@@ -6,7 +6,7 @@ const mysql = require('mysql2');
 
 initialize()
 
-async function initialize() {
+function initialize() {
     connection = mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
 }
 
@@ -69,13 +69,23 @@ function start() {
 
 
 async function viewAllEmployees() {
-    try {
-        const [rows] = await connection.execute(`SELECT * FROM employee`);
-        console.table(rows);
-    } catch (error) {
-        console.log(error)
-    }
-    start();
+
+let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, '', manager.last_name) AS manager
+FROM employee
+LEFT JOIN role
+    On employee.role_id = role.id
+LEFT JOIN department
+ON department.id = role.department_id
+LEFT JOIN employee manager
+    ON manager.id = employee.manager_id`
+
+connection.query(query, function(error, res){
+if (error) throw error ;
+
+console.table(res)
+
+start();
+})   
 }
 
 function addEmployees() {
@@ -146,13 +156,14 @@ function updateEmployeeRole() {
 function employeeUpdater() {
     console.log("updates baby updates")
 
-    let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, CONCAT(manager.first_name,'',manager.last_name) FROM employee
+    let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name,'',manager.last_name) AS manager
+FROM employee
 JOIN role
-ON employee.role_id = role_id
+    ON employee.role_id = role_id
 JOIN department
 ON department.id = role.department_id
 JOIN employee manager
-ON manager.id = employee.manager_id`
+    ON manager.id = employee.manager_id`
 
     connection.query(query, function (error, res) {
         if (error) throw (error);
@@ -229,12 +240,13 @@ function promptRoleEmployee(employeeChoices, roleChoice) {
 
 async function viewAllRoles() {
     try {
-        const [rows] = await connection.execute(`SELECT * FROM role`);
+        const [rows] =  connection.execute(`SELECT * FROM role`);
         console.table(rows);
     } catch (error) {
         console.log(error)
     }
 }
+
 function addRole() {
     let query =
         `SELECT department.id, department.name, role.salary AS budget
@@ -302,6 +314,8 @@ function promptAddRole(Addition) {
 }
 
 async function viewAllDepartments() {
+    let connection;
+
     try {
         const [rows] = await connection.execute(`SELECT * FROM department`);
         console.table(rows);
@@ -315,5 +329,3 @@ function addDepartment() {
 
 
 }
-
-        // let readMeTemplate = `# ${response.readMeName}
