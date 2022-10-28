@@ -4,14 +4,16 @@ const fs = require('fs');
 const mysql = require('mysql2');
 // TODO: Create an array of questions for user input
 
+
+// connects sequelize 
 let connection;
 initialize()
 async function initialize() {
      connection= await mysql.createConnection({ host: 'localhost', user: 'root', password: "rout", database: 'db_EmployeeInfo' })
 }
 
+//starts code and lists prompts to starts functions 
 start();
-
 function start() {
     inquirer
         .prompt([
@@ -63,11 +65,7 @@ function start() {
 
 }
 
-
-// const [rows] = await connection.execute(`SELECT * FROM employees where firstname = ?`,[responseObject.first_name] );
-// console.table(rows);
-
-
+//allows us to view all employees and continue
 async function viewAllEmployees() {
 
 let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, '', manager.last_name) AS manager
@@ -149,7 +147,7 @@ function promptInsert(roleResults) {
         })
 }
 
-
+//Updates employees and shows you the result
 function updateEmployeeRole() {
     employeeUpdater();
 }
@@ -237,7 +235,7 @@ function promptRoleEmployee(employeeChoices, roleChoice) {
         })
 }
 
-
+//allows us to view all the roles and continue 
 async function viewAllRoles() {
    let query =`SELECT role.id, role.title, role.salary
    FROM role`
@@ -256,7 +254,7 @@ console.table(res);
 });
 }
 
-
+// allows us to add role
 function addRole() {
     let query =
         `SELECT department.id, department.name, role.salary AS budget
@@ -323,6 +321,7 @@ function promptAddRole(Addition) {
         })
 }
 
+//allows the view of all department 
 function viewAllDepartments() {
    
 let query = `SELECT department.id, department.name, role.salary AS budget
